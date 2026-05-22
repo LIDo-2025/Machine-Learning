@@ -155,3 +155,51 @@ function toggleCodeCollapse(codeId) {
         label.textContent = label.textContent.replace(/^Hide/, 'Show');
     }
 }
+
+// Quiz functionality
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.quiz-box').forEach(function (quizBox) {
+        const quizId = quizBox.id;
+
+        quizBox.querySelectorAll('.quiz-question').forEach(function (questionEl) {
+            const topicId = questionEl.dataset.topicId;
+            const options = questionEl.querySelectorAll('.quiz-option');
+            const feedback = questionEl.querySelector('.quiz-feedback');
+
+            options.forEach(function (label) {
+                label.addEventListener('click', function () {
+                    // Ignore if already answered
+                    if (questionEl.classList.contains('answered')) return;
+
+                    const isCorrect = label.dataset.correct === 'true';
+
+                    questionEl.classList.add('answered');
+
+                    // Style all options: correct stays green, wrong chosen goes red
+                    options.forEach(function (opt) {
+                        opt.classList.add('disabled');
+                        if (opt.dataset.correct === 'true') {
+                            opt.classList.add('correct');
+                        } else if (opt === label && !isCorrect) {
+                            opt.classList.add('incorrect');
+                        }
+                        opt.querySelector('input').disabled = true;
+                    });
+
+                    if (isCorrect) {
+                        feedback.textContent = '✓ Correct!';
+                        feedback.className = 'quiz-feedback correct';
+                        // Strike through matching topic pill
+                        if (topicId) {
+                            const pill = quizBox.querySelector('#' + quizId + '-topic-' + topicId);
+                            if (pill) pill.classList.add('completed');
+                        }
+                    } else {
+                        feedback.textContent = '✗ Not quite — the correct answer is highlighted.';
+                        feedback.className = 'quiz-feedback incorrect';
+                    }
+                });
+            });
+        });
+    });
+});
